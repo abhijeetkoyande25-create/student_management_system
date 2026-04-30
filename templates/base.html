@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Student Management{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div>
+        <p class="eyebrow">Campus Suite</p>
+        <h1>Student Management</h1>
+        <p class="sidebar-copy">Python, Flask, and SQLite based university management dashboard.</p>
+      </div>
+      <nav class="nav-list">
+        <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{{ url_for('create_student') }}" class="nav-link {% if request.endpoint == 'create_student' %}active{% endif %}">Add Student</a>
+        <a href="{{ url_for('results_overview') }}" class="nav-link {% if request.endpoint == 'results_overview' %}active{% endif %}">Results</a>
+      </nav>
+    </aside>
+
+    <main class="content-shell">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <section class="flash-stack">
+            {% for category, message in messages %}
+              <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script>
+    window.courseSubjects = {{ course_subjects_json|safe }};
+  </script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "Edit Student" if form_mode == "edit" else "Add Student" }} | Student Management{% endblock %}
+
+{% block content %}
+  <section class="topbar">
+    <div>
+      <p class="eyebrow">Student Records</p>
+      <h2>{{ "Edit Student Record" if form_mode == "edit" else "Add Student Record" }}</h2>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="secondary-button link-button">Back to Dashboard</a>
+  </section>
+
+  <form method="post" class="form-shell" id="student-form" data-mode="{{ form_mode }}">
+    <section class="form-section">
+      <h3>Basic Information</h3>
+      <div class="form-grid">
+        <label>
+          <span>Student ID</span>
+          <input name="student_id" value="{{ form_data.student_id }}" required>
+        </label>
+        <label>
+          <span>Full Name</span>
+          <input name="full_name" value="{{ form_data.full_name }}" required>
+        </label>
+        <label>
+          <span>Enrollment Year</span>
+          <input type="number" name="enrollment_year" min="2000" max="2100" value="{{ form_data.enrollment_year }}" required>
+        </label>
+        <label>
+          <span>Current Year / Semester</span>
+          <input name="current_year" value="{{ form_data.current_year }}" placeholder="Year 2 / Sem 4" required>
+        </label>
+        <label>
+          <span>Course</span>
+          <select name="course" id="course-select" data-selected="{{ form_data.course }}">
+            {% for course_name in course_subjects.keys() %}
+              <option value="{{ course_name }}" {% if form_data.course == course_name %}selected{% endif %}>{{ course_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Status</span>
+          <select name="status">
+            <option value="Active" {% if form_data.status == "Active" %}selected{% endif %}>Active</option>
+            <option value="Inactive" {% if form_data.status == "Inactive" %}selected{% endif %}>Inactive</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Student Contact</h3>
+      <div class="form-grid">
+        <label>
+          <span>Email</span>
+          <input type="email" name="student_email" value="{{ form_data.student_email }}" required>
+        </label>
+        <label>
+          <span>Phone Number</span>
+          <input name="student_phone" value="{{ form_data.student_phone }}" required>
+        </label>
+        <label class="full-span">
+          <span>Address</span>
+          <textarea name="student_address" rows="3" required>{{ form_data.student_address }}</textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Parent Information</h3>
+      <div class="form-grid">
+        <label>
+          <span>Parent Name</span>
+          <input name="parent_name" value="{{ form_data.parent_name }}" required>
+        </label>
+        <label>
+          <span>Parent Phone Number</span>
+          <input name="parent_phone" value="{{ form_data.parent_phone }}" required>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Previous College Details</h3>
+      <div class="form-grid">
+        <label>
+          <span>Previous College Name</span>
+          <input name="previous_college_name" value="{{ form_data.previous_college_name }}" required>
+        </label>
+        <label>
+          <span>Previous Course</span>
+          <input name="previous_course" value="{{ form_data.previous_course }}" required>
+        </label>
+        <label>
+          <span>Previous Marks (%)</span>
+          <input type="number" name="previous_marks" min="0" max="100" step="0.01" value="{{ form_data.previous_marks }}" required>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Fees and Project</h3>
+      <div class="form-grid">
+        <label>
+          <span>Total Fees</span>
+          <input type="number" name="total_fees" min="0" step="0.01" value="{{ form_data.total_fees }}" required>
+        </label>
+        <label>
+          <span>Fees Paid</span>
+          <input type="number" name="fees_paid" min="0" step="0.01" value="{{ form_data.fees_paid }}" required>
+        </label>
+        <label>
+          <span>Project Completed</span>
+          <select name="project_completed">
+            <option value="Yes" {% if form_data.project_completed == "Yes" %}selected{% endif %}>Yes</option>
+            <option value="No" {% if form_data.project_completed == "No" %}selected{% endif %}>No</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="section-head">
+        <div>
+          <h3>Assigned Subjects</h3>
+          <p>Subjects update automatically based on the selected course.</p>
+        </div>
+      </div>
+      <div id="subjects-container" class="subject-list" data-subjects='{{ form_data.subjects|tojson }}'></div>
+    </section>
+
+    <div class="form-actions">
+      <button type="submit" class="primary-button">{{ "Update Student" if form_mode == "edit" else "Save Student" }}</button>
+      {% if form_mode == "edit" and student %}
+        <a href="{{ url_for('student_detail', student_id=student.id) }}" class="secondary-button link-button">Cancel</a>
+      {% endif %}
+    </div>
+  </form>
+{% endblock %}

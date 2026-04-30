@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Results | Student Management{% endblock %}
+
+{% block content %}
+  <section class="topbar">
+    <div>
+      <p class="eyebrow">Results and SGPA</p>
+      <h2>Semester Result Page</h2>
+    </div>
+    <form method="get" class="search-form">
+      <input type="search" name="q" value="{{ query }}" placeholder="Search student for result view">
+      <button type="submit" class="secondary-button">Search</button>
+    </form>
+  </section>
+
+  <section class="results-layout">
+    <article class="card">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">Student List</p>
+          <h3>Select Student</h3>
+        </div>
+      </div>
+      {% if students %}
+        <div class="student-card-list">
+          {% for student in students %}
+            <a href="{{ url_for('results_overview', student_id=student.id, q=query) }}" class="student-card {% if selected_student and selected_student.id == student.id %}active{% endif %}">
+              <h4>{{ student.full_name }}</h4>
+              <p>{{ student.student_id }} | {{ student.course }}</p>
+              <p>SGPA {{ "%.2f"|format(student.sgpa) }}</p>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty-state">No results available for the current search.</p>
+      {% endif %}
+    </article>
+
+    <article class="card">
+      {% if selected_student %}
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Result Sheet</p>
+            <h3>{{ selected_student.full_name }}</h3>
+          </div>
+          <a href="{{ url_for('student_detail', student_id=selected_student.id) }}" class="secondary-button link-button">Open Detail</a>
+        </div>
+
+        <section class="stats-grid compact">
+          <article class="stat-card"><span>{{ selected_student.course }}</span><p>Course</p></article>
+          <article class="stat-card"><span>{{ selected_student.current_year }}</span><p>Current Year / Semester</p></article>
+          <article class="stat-card"><span>{{ "%.2f"|format(selected_student.sgpa) }}</span><p>SGPA</p></article>
+          <article class="stat-card"><span>{{ "%.1f"|format(selected_student.average_attendance) }}%</span><p>Avg Attendance</p></article>
+        </section>
+
+        <div class="detail-grid compact-grid">
+          <section class="detail-card">
+            <h4>Student Information</h4>
+            <p><strong>Student ID</strong>{{ selected_student.student_id }}</p>
+            <p><strong>Enrollment Year</strong>{{ selected_student.enrollment_year }}</p>
+            <p><strong>Project Completed</strong>{{ selected_student.project_completed }}</p>
+          </section>
+          <section class="detail-card">
+            <h4>Fee Summary</h4>
+            <p><strong>Total Fees</strong>Rs. {{ "%.0f"|format(selected_student.total_fees) }}</p>
+            <p><strong>Fees Paid</strong>Rs. {{ "%.0f"|format(selected_student.fees_paid) }}</p>
+            <p><strong>Fees Pending</strong>Rs. {{ "%.0f"|format(selected_student.fees_pending) }}</p>
+          </section>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Marks</th>
+                <th>Attendance</th>
+                <th>Assignments</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for subject in selected_student.subjects %}
+                <tr>
+                  <td>{{ subject.subject_name }}</td>
+                  <td>{{ "%.1f"|format(subject.marks) }}</td>
+                  <td>{{ "%.1f"|format(subject.attendance) }}%</td>
+                  <td>{{ subject.assignments_count }}</td>
+                  <td>
+                    <span class="pill {% if subject.marks >= 40 %}ok{% else %}pending{% endif %}">
+                      {{ "Pass" if subject.marks >= 40 else "Needs Work" }}
+                    </span>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Result Sheet</p>
+            <h3>Select a student</h3>
+          </div>
+        </div>
+        <p class="empty-state">Choose a student from the left panel to view all subject marks and SGPA.</p>
+      {% endif %}
+    </article>
+  </section>
+{% endblock %}

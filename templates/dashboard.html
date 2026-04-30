@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Student Management{% endblock %}
+
+{% block content %}
+  <section class="topbar">
+    <div>
+      <p class="eyebrow">University Operations</p>
+      <h2>Dashboard Overview</h2>
+    </div>
+    <form method="get" class="search-form">
+      <input type="search" name="q" value="{{ query }}" placeholder="Search by name, ID, course, parent, or phone">
+      <button type="submit" class="secondary-button">Search</button>
+    </form>
+  </section>
+
+  <section class="hero-grid">
+    <article class="hero-card wide">
+      <p class="eyebrow">System View</p>
+      <h3>Manage full student records with backend storage</h3>
+      <p>Track enrollment year, fees paid or pending, course-based subjects, attendance, assignments, project completion, parent details, previous college information, and semester results with SGPA.</p>
+    </article>
+    <article class="hero-card">
+      <p class="eyebrow">Top Performer</p>
+      {% if stats.top_performer %}
+        <h3>{{ stats.top_performer.full_name }}</h3>
+        <p>{{ stats.top_performer.course }} | SGPA {{ "%.2f"|format(stats.top_performer.sgpa) }} | {{ "Fees Pending" if stats.top_performer.fees_pending > 0 else "Fees Clear" }}</p>
+      {% else %}
+        <h3>No records yet</h3>
+        <p>Add student records to see the top performer.</p>
+      {% endif %}
+    </article>
+  </section>
+
+  <section class="stats-grid">
+    <article class="stat-card"><span>{{ stats.total_students }}</span><p>Total Students</p></article>
+    <article class="stat-card"><span>{{ stats.fees_pending_count }}</span><p>Fees Pending</p></article>
+    <article class="stat-card"><span>{{ "%.2f"|format(stats.average_sgpa) }}</span><p>Average SGPA</p></article>
+    <article class="stat-card"><span>{{ stats.project_completed_count }}</span><p>Projects Completed</p></article>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="card">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">Directory</p>
+          <h3>Registered Students</h3>
+        </div>
+        <a href="{{ url_for('create_student') }}" class="primary-button link-button">Add New</a>
+      </div>
+
+      {% if students %}
+        <div class="student-card-list">
+          {% for student in students %}
+            <a href="{{ url_for('dashboard', student_id=student.id, q=query) }}" class="student-card {% if selected_student and selected_student.id == student.id %}active{% endif %}">
+              <div class="student-card-head">
+                <div>
+                  <h4>{{ student.full_name }}</h4>
+                  <p>{{ student.student_id }} | {{ student.course }}</p>
+                </div>
+                <span class="pill {% if student.fees_pending > 0 %}pending{% else %}ok{% endif %}">
+                  {{ "Fees Pending" if student.fees_pending > 0 else "Fees Clear" }}
+                </span>
+              </div>
+              <p>Enrollment: {{ student.enrollment_year }}</p>
+              <p>Parent: {{ student.parent_name }}</p>
+              <p>SGPA: {{ "%.2f"|format(student.sgpa) }}</p>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty-state">No students found. Add the first student record to get started.</p>
+      {% endif %}
+    </article>
+
+    <article class="card detail-panel">
+      <div class="card-head">
+        <div>
+          <p class="eyebrow">Student Detail</p>
+          <h3>{{ selected_student.full_name if selected_student else "Select a Student" }}</h3>
+        </div>
+        {% if selected_student %}
+          <a href="{{ url_for('student_detail', student_id=selected_student.id) }}" class="secondary-button link-button">Open Full Page</a>
+        {% endif %}
+      </div>
+
+      {% if selected_student %}
+        <div class="detail-grid">
+          <section class="detail-card">
+            <h4>Basic Information</h4>
+            <p><strong>Student ID</strong>{{ selected_student.student_id }}</p>
+            <p><strong>Enrollment Year</strong>{{ selected_student.enrollment_year }}</p>
+            <p><strong>Current Year / Semester</strong>{{ selected_student.current_year }}</p>
+            <p><strong>Course</strong>{{ selected_student.course }}</p>
+            <p><strong>Status</strong>{{ selected_student.status }}</p>
+          </section>
+          <section class="detail-card">
+            <h4>Contact and Parent</h4>
+            <p><strong>Student Email</strong>{{ selected_student.student_email }}</p>
+            <p><strong>Student Phone</strong>{{ selected_student.student_phone }}</p>
+            <p><strong>Parent Name</strong>{{ selected_student.parent_name }}</p>
+            <p><strong>Parent Phone</strong>{{ selected_student.parent_phone }}</p>
+          </section>
+          <section class="detail-card">
+            <h4>Fees and Progress</h4>
+            <p><strong>Total Fees</strong>Rs. {{ "%.0f"|format(selected_student.total_fees) }}</p>
+            <p><strong>Fees Paid</strong>Rs. {{ "%.0f"|format(selected_student.fees_paid) }}</p>
+            <p><strong>Fees Pending</strong>Rs. {{ "%.0f"|format(selected_student.fees_pending) }}</p>
+            <p><strong>Project Completed</strong>{{ selected_student.project_completed }}</p>
+          </section>
+          <section class="detail-card">
+            <h4>Academic Snapshot</h4>
+            <p><strong>Assigned Subjects</strong>{{ selected_student.subjects|length }}</p>
+            <p><strong>Total Assignments</strong>{{ selected_student.total_assignments }}</p>
+            <p><strong>Average Attendance</strong>{{ "%.1f"|format(selected_student.average_attendance) }}%</p>
+            <p><strong>SGPA</strong>{{ "%.2f"|format(selected_student.sgpa) }}</p>
+          </section>
+        </div>
+      {% else %}
+        <p class="empty-state">Select a student from the directory to view the full detail summary.</p>
+      {% endif %}
+    </article>
+  </section>
+{% endblock %}
